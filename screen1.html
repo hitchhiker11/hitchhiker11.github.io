@@ -198,6 +198,7 @@
 <!-- <script src="metabolism.js"></script> -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  let userId;
     if (Telegram.WebApp.ready) {
     // Получаем данные пользователя из Telegram
     const userData = Telegram.WebApp.initDataUnsafe.user;
@@ -212,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('userName').textContent = userName;
 
       // Заменяем статический userId на полученный из Telegram
-      const userId = userData.id;
+      userId = userData.id;
       
       // Остальной код загрузки данных пользователя и т.д.
       // ...
