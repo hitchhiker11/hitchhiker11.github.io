@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Pool } = require('pg');
+const path = require('path');
+const https = require('https');
+const fs = require('fs');
 
 // PostgreSQL connection setup
 const pool = new Pool({
@@ -15,6 +18,13 @@ const pool = new Pool({
 // Create a new Express application
 const app = express();
 
+// app.use(express.static('public'));
+const options = {
+    key: fs.readFileSync('/etc/ssl/key.pem'), // Update with your actual file path
+    cert: fs.readFileSync('/etc/ssl/cert.pem') // Update with your actual file path
+  };
+
+app.use(express.static(path.join(__dirname, '.')));
 // Use body-parser to parse JSON bodies
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,10 +35,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 const PORT = process.env.PORT || 3000;
-
+https.createServer(options, app).listen(3000, function () {
+    console.log('Express app listening on HTTPS port 3000');
+  });
+// app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+//   });
 // API route for handling user data submission
 app.post('/user', async (req, res) => {
     const { user_id, age, height, weight, activityLevel, goal, foodRestrictions, metabolism } = req.body;
+    console.log({ user_id, age, height, weight, activityLevel, goal, foodRestrictions, metabolism })
     try {
         // Обновляем данные пользователя, включая метаболизм
         await pool.query('UPDATE users SET age = $1, height = $2, weight = $3, activity_level = $4, goal = $5, food_restrictions = $6, metabolism = $7 WHERE user_id = $8', 
@@ -484,7 +500,5 @@ app.get('/product-group/:productId', async (req, res) => {
 
 
   
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+
 // module.exports = app;
