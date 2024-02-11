@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Diet - Home Screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 60px;
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+    /* Additional CSS if needed */
+    .grid-cell {
+    width: 100px;
+    height: 100px;
+  }
+  .btn-group-number::after {
+    content: attr(data-number);
+    font-size: 0.85rem;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: white;
+    border-radius: 9999px;
+    padding: 2px 6px;
+  }
+  @media (max-width: 480px) {
+    h2, .tab, button {
+        font-size: 14px; /* Уменьшение размера текста */
+    }
+}
+</style>
+</head>
+<body class="bg-gray-100 font-roboto">
+
+<div class="container mx-auto px-4">
+  <div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-4xl mx-auto mt-6 mb-6">
+        <!-- Место для аватарки и имени пользователя вместо заголовка "Ассистент-диетолог" -->
+        <div class="flex items-center mb-4">
+            <img id="userPhoto" src="" alt="User Photo" class="rounded-full w-10 h-10 mr-2"> <!-- Миниатюра аватарки -->
+            <h1 id="userName" class="text-2xl font-bold">Ассистент-диетолог</h1> <!-- Имя пользователя -->
+        </div>
+  
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Возраст</label>
+            <div class="flex items-center">
+              <span id="ageDisplay" class="mr-2">21</span>
+              <button onclick="openModal('ageModal')" class="p-1 border rounded">
+                <img src="https://img.icons8.com/material-outlined/24/000000/edit--v1.png"/>
+              </button>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Рост</label>
+            <div class="flex items-center">
+              <span id="heightDisplay" class="mr-2">173 см</span>
+              <button onclick="openModal('heightModal')" class="p-1 border rounded">
+                <img src="https://img.icons8.com/material-outlined/24/000000/edit--v1.png"/>
+              </button>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Вес</label>
+            <div class="flex items-center">
+              <span id="weightDisplay" class="mr-2">63 кг</span>
+              <button onclick="openModal('weightModal')" class="p-1 border rounded">
+                <img src="https://img.icons8.com/material-outlined/24/000000/edit--v1.png"/>
+              </button>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Уровень активности</label>
+            <select id="activityLevel" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              <option value="low">Низкий</option>
+              <option value="medium">Средний</option>
+              <option value="high">Высокий</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Цель</label>
+            <select id="goal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              <option value="lose">Снижение веса</option>
+              <option value="maintain">Стабилизация</option>
+              <!-- Добавьте другие цели, если необходимо -->
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Ограничения по продуктам</label>
+            <select id="foodRestrictions" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+              <option value="none">Нет</option>
+              <option value="lactoseFree">Безлактозная</option>
+              <option value="glutenFree">Безглютеновая</option>
+              <option value="vegetarian">Вегетарианство</option>
+              <option value="ovoVegetarian">Ово-вегетарианство</option>
+              <option value="lactoVegetarian">Лакто-вегетарианство</option>
+              <option value="ovoLactoVegetarian">Ово-лакто-вегетарианство</option>
+              <option value="vegan">Веганство</option>
+              <!-- Добавьте другие ограничения, если необходимо -->
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Ваш метаболизм:</label>
+            <span id="metabolismDisplay" class="block">Введите параметры</span>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Формула суточного рациона</label>
+            <div id="dietPlanContainer" class="flex gap-4 mb-4">
+            </div>
+            <!-- Кнопка, изначально скрытая -->
+            <button id="goToScreen1" class="hidden bg-blue-200 px-4 py-2 rounded text-blue-600 mt-4">Добавить</button>
+
+          </div>
+        </div>
+
+        <div>
+
+        </div>
+      </div>
+      <div id="currentDate" class="bottom-left-corner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Age Modal -->
+
+<div id="ageModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('ageModal')">&times;</span>
+    <label class="block text-gray-700 text-sm font-bold mb-2">Возраст:</label>
+    <input type="number" id="ageInput" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="21">
+    <button onclick="saveData('age')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+      Сохранить
+    </button>
+  </div>
+</div>
+
+<!-- Height Modal -->
+<div id="heightModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('heightModal')">&times;</span>
+    <label class="block text-gray-700 text-sm font-bold mb-2">Рост:</label>
+    <input type="number" id="heightInput" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="173">
+    <button onclick="saveData('height')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+      Сохранить
+    </button>
+  </div>
+</div>
+
+<!-- Weight Modal -->
+<div id="weightModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('weightModal')">&times;</span>
+    <label class="block text-gray-700 text-sm font-bold mb-2">Вес:</label>
+    <input type="number" id="weightInput" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="63">
+    <button onclick="saveData('weight')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+      Сохранить
+    </button>
+  </div>
+</div>
+
+<!-- <script src="metabolism.js"></script> -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (Telegram.WebApp.ready) {
+    // Получаем данные пользователя из Telegram
+    const userData = Telegram.WebApp.initDataUnsafe.user;
+    
+    // Если данные пользователя доступны, обновляем UI
+    if (userData) {
+      const userPhoto = userData.photo_url || 'default-avatar.png'; // Замените 'default-avatar.png' на URL вашего стандартного аватара
+      const userName = `${userData.first_name} ${userData.last_name}`;
+      
+      // Устанавливаем фото пользователя и имя в заголовке
+      document.getElementById('userPhoto').src = userPhoto;
+      document.getElementById('userName').textContent = userName;
+
+      // Заменяем статический userId на полученный из Telegram
+      const userId = userData.id;
+      
+      // Остальной код загрузки данных пользователя и т.д.
+      // ...
+    }
+  }
+
+fetch(`http://localhost:3000/user/${userId}`)
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+})
+.then(userData => {
+    // Заполняем элементы формы данными пользователя
+    document.getElementById('ageDisplay').textContent = userData.age;
+    document.getElementById('heightDisplay').textContent = userData.height;
+    document.getElementById('weightDisplay').textContent = userData.weight;
+    document.getElementById('activityLevel').value = userData.activity_level;
+    document.getElementById('goal').value = userData.goal;
+    if (userData.metabolism) {
+            displayDietPlan(userData.metabolism);
+        }
+    // Добавьте код для обработки данных о метаболизме и ограничениях питания, если они есть
+})
+.catch(error => console.error('Error:', error));
+
+  ///////////////////////////////////////
+    const sendData = () => {
+        const metabolism = getMetabolismData();
+        console.log(metabolism)
+        const data = {
+            age: document.getElementById('ageDisplay').textContent.split(' ')[0],
+            height: document.getElementById('heightDisplay').textContent.split(' ')[0],
+            weight: document.getElementById('weightDisplay').textContent.split(' ')[0],
+            activityLevel: document.getElementById('activityLevel').value,
+            goal: document.getElementById('goal').value,
+            // foodRestrictions: Array.from(document.querySelectorAll('[name="foodRestrictions"]:checked')).map(el => el.value),
+            foodRestrictions: document.getElementById('foodRestrictions').value,
+            metabolism
+        };
+
+        if (data.age && data.height && data.weight) {
+            fetch('http://localhost:3000/user', {
+                method: 'POST',
+                body: JSON.stringify({ user_id: Telegram.WebApp.initDataUnsafe.user.id, ...data }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch(error => console.error('Error:', error));
+        }
+    };
+
+    const getMetabolismData = () => {
+        const buttons = document.querySelectorAll('#dietPlanContainer .btn-group-number');
+        return Array.from(buttons).map(button => button.textContent.trim() + button.getAttribute('data-number')).join('');
+    };
+
+    const displayDietPlan = (dietPlanFormula) => {
+        const dietPlanContainer = document.getElementById('dietPlanContainer');
+        dietPlanContainer.innerHTML = ''; // Очищаем текущее содержимое
+
+        // Разделяем строку формулы на компоненты и создаем кнопки
+        const components = dietPlanFormula.match(/([А-Я][0-9]+)/g);
+        if (components) {
+            components.forEach(component => {
+                const button = document.createElement('button');
+                button.className = 'btn-group-number relative bg-blue-200 px-4 py-2 rounded';
+                button.textContent = component.slice(0, 1); // Буква (например, "М")
+                button.dataset.number = component.slice(1); // Число (например, "2")
+                dietPlanContainer.appendChild(button);
+            });
+        }
+        const goToScreen1Button = document.getElementById('goToScreen1');
+        goToScreen1Button.classList.remove('hidden');
+
+        // Изменяем обработчик события onclick для кнопки
+        goToScreen1Button.onclick = function() {
+            // Простое перенаправление на screen2.html без передачи параметров
+            window.location.href = 'screen4.html';
+        };
+    };
+    // Добавим обработчики для кнопок в модальных окнах
+    ['ageModal', 'heightModal', 'weightModal'].forEach(modalId => {
+        const saveButton = document.querySelector(`#${modalId} button`);
+        if (saveButton) {
+            saveButton.addEventListener('click', sendData);
+        }
+    });
+    document.querySelectorAll('#ageDisplay, #heightDisplay, #weightDisplay, #activityLevel, #goal, #foodRestrictions').forEach(element => {
+        element.addEventListener('change', sendData);
+    });
+
+    // Обработчик для переключателей ограничений питания
+    document.querySelectorAll('[name="foodRestrictions"]').forEach(el => el.addEventListener('change', sendData));
+
+});
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+    const userId = Telegram.WebApp.initDataUnsafe.user.id;
+    fetch(`http://localhost:3000/user/${userId}`)
+    .then(response => response.json())
+    .then(userData => {
+        if (modalId === 'ageModal') {
+            document.getElementById('ageInput').value = userData.age;
+        } else if (modalId === 'heightModal') {
+            document.getElementById('heightInput').value = userData.height;
+        } else if (modalId === 'weightModal') {
+            document.getElementById('weightInput').value = userData.weight;
+        }
+        document.getElementById(modalId).style.display = 'block';
+    })
+    .catch(error => console.error('Error:', error));
+    
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  function saveData(field) {
+  let inputId = field + 'Input';
+  let displayId = field + 'Display';
+  let value = document.getElementById(inputId).value;
+  let unit = '';
+
+  switch (field) {
+    case 'age':
+      unit = ' год(-а)';
+      break;
+    case 'height':
+      unit = ' см';
+      break;
+    case 'weight':
+      unit = ' кг';
+      break;
+  }
+
+  document.getElementById(displayId).textContent = value + unit;
+  closeModal(field + 'Modal');
+
+  // Соберите данные формы
+  const data = {
+    age: parseInt(document.getElementById('ageDisplay').textContent.split(' ')[0]),
+    height: parseFloat(document.getElementById('heightDisplay').textContent.split(' ')[0]),
+    weight: parseFloat(document.getElementById('weightDisplay').textContent.split(' ')[0]),
+    activityLevel: document.getElementById('activityLevel').value,
+    goal: document.getElementById('goal').value,
+    isLactoseIntolerant: document.getElementById('foodRestrictions').value === 'lactoseFree'
+  };
+
+  // Вычислите метаболизм и диету
+  const metabolism = calculateMetabolism(data);
+  const dietPlan = getDietPlan(metabolism, data.isLactoseIntolerant);
+
+  // Отобразите результаты
+  document.getElementById('metabolismDisplay').textContent = metabolism + ' ккал.';
+  displayDietPlan(dietPlan);
+}
+
+  // Set current date
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+
+  // Функция для расчета меню
+  function calculateMenu() {
+    // Собираем данные пользователя
+    const userData = {
+      gender: document.getElementById('gender').value,
+      weight: parseFloat(document.getElementById('weight').value),
+      height: parseFloat(document.getElementById('height').value),
+      age: parseInt(document.getElementById('age').value),
+      activityLevel: document.getElementById('activityLevel').value,
+      goal: document.getElementById('goal').value,
+      // Преобразуем выбранное ограничение в булево значение для лактозы
+      isLactoseIntolerant: document.getElementById('foodRestrictions').value === 'lactoseFree'
+    };
+
+    // Вычисляем метаболизм
+    const metabolism = calculateMetabolism(userData);
+
+    // Получаем план диеты на основе метаболизма и ограничений по продуктам
+    const dietPlan = getDietPlan(metabolism, userData.isLactoseIntolerant);
+
+    // Отображаем результаты
+    document.getElementById('dietPlan').textContent = dietPlan;
+  }
+
+  function calculateMetabolism(data) {
+    let BM, PM1, PM2, IM;
+  
+    // Расчет базового метаболизма BM
+    if (data.BM) {
+      BM = data.BM;
+    } else {
+      if (data.gender === "M") {
+        BM = 10 * data.weight + 6.25 * data.height - 5 * data.age + 5;
+      } else {
+        BM = 10 * data.weight + 6.25 * data.height - 5 * data.age - 161;
+      }
+    }
+  
+    // Расчетный метаболизм 1 PM1
+    if (BM <= 1400) {
+        PM1 = 1400;
+    } else if (BM > 1400 && BM <= 1500) {
+        PM1 = BM;
+    } else {
+        PM1 = BM - 300;  // This subtracts 300 from BM if BM is above 1500
+    }
+      
+    // Расчетный метаболизм 2 PM2 в зависимости от уровня физической активности
+    switch (data.activityLevel) {
+      case "low":
+        PM2 = PM1;
+        break;
+      case "medium":
+        PM2 = PM1 + 300;
+        break;
+      case "high":
+        PM2 = PM1 + 500;
+        break;
+      default:
+        PM2 = PM1;
+    }
+  
+    // Итоговый метаболизм IM в зависимости от цели
+    if (data.goal === "lose") {
+      IM = PM2;
+    } else if (data.goal === "maintain") {
+      IM = PM2 + 300;
+    } else {
+      IM = PM2;
+    }
+  
+    return IM;  // Возвращает итоговый метаболизм
+  }
+
+// calculation of the daily diet plan
+
+  function getDietPlan(metabolism, isLactoseIntolerant) {
+    // Your table data should be stored in an array or an object for easier management. 
+    // For the purpose of this example, I will assume an array of objects named dietPlans.
+    const dietPlans = [
+      { metabolism: 1200, formula: 'М1Ф1О4К3Б7Ж5', formulaLactoseFree: 'М0Ф7О5К3Б7Ж5' },
+      { metabolism: 1300, formula: 'М1Ф2О4К3Б8Ж5', formulaLactoseFree: 'М0Ф2О5К3Б8Ж6' },
+      { metabolism: 1400, formula: 'М1Ф2О5К4Б8Ж5', formulaLactoseFree: 'М0Ф2О5К4Б9Ж6' },
+      { metabolism: 1500, formula: 'М2Ф2О5К4Б8Ж5', formulaLactoseFree: 'М0Ф2О6К4Б10Ж6' },
+      { metabolism: 1600, formula: 'М2Ф2О6К4Б9Ж5', formulaLactoseFree: 'М0Ф2О6К4Б11Ж7' },
+      { metabolism: 1700, formula: 'М2Ф2О6К5Б10Ж5', formulaLactoseFree: 'М0Ф2О6К5Б11Ж7' },
+      { metabolism: 1800, formula: 'М2Ф2О6К5Б11Ж5', formulaLactoseFree: 'М0Ф2О6К5Б12Ж8' },
+      { metabolism: 1900, formula: 'М2Ф2О6К5Б12Ж6', formulaLactoseFree: 'М0Ф2О6К6Б12Ж8' },
+      { metabolism: 2000, formula: 'М2Ф2О6К6Б12Ж6', formulaLactoseFree: 'М0Ф2О6К7Б13Ж8' },
+      { metabolism: 2100, formula: 'М2Ф2О6К6Б13Ж7', formulaLactoseFree: 'М0Ф2О6К7Б13Ж9' },
+      { metabolism: 2200, formula: 'М3Ф2О6К6Б13Ж7', formulaLactoseFree: 'М0Ф2О6К7Б14Ж10' },
+      { metabolism: 2300, formula: 'М3Ф2О7К6Б14Ж7', formulaLactoseFree: 'М0Ф2О7К7Б15Ж10' },
+      { metabolism: 2400, formula: 'М3Ф2О7К7Б14Ж7', formulaLactoseFree: 'М0Ф3О7К7Б15Ж11' },
+      { metabolism: 2500, formula: 'М3Ф2О7К7Б15Ж8', formulaLactoseFree: 'М0Ф4О7К7Б16Ж11' },
+      { metabolism: 2600, formula: 'М3Ф3О7К8Б15Ж8', formulaLactoseFree: 'М0Ф4О8К8Б16Ж11' },
+      { metabolism: 2700, formula: 'М4Ф3О7К8Б15Ж8', formulaLactoseFree: 'М0Ф5О8К8Б16Ж12' },
+      { metabolism: 2800, formula: 'М4Ф3О7К8Б15Ж9', formulaLactoseFree: 'М0Ф5О8К9Б16Ж12' },
+      { metabolism: 2900, formula: 'М4Ф3О7К8Б16Ж10', formulaLactoseFree: 'М0Ф5О8К9Б17Ж13' },
+      { metabolism: 3000, formula: 'М4Ф3О7К9Б16Ж10', formulaLactoseFree: 'М0Ф5О8К9Б17Ж14' },
+    
+    ];
+  
+    // Find the closest match for the calculated metabolism in the dietPlans
+    const matchingPlan = dietPlans.reduce((prev, curr) => {
+      return (Math.abs(curr.metabolism - metabolism) < Math.abs(prev.metabolism - metabolism) ? curr : prev);
+    });
+  
+    // Return either the lactose-free or regular formula based on user's lactose intolerance
+    return isLactoseIntolerant ? matchingPlan.formulaLactoseFree : matchingPlan.formula;
+  };
+
+
+  // Получите все элементы формы, которые могут влиять на метаболизм и диету
+  const formElements = document.querySelectorAll('#ageDisplay, #heightDisplay, #weightDisplay, #activityLevel, #goal, #foodRestrictions');
+
+  // Добавьте обработчик события 'change' на каждый элемент
+  formElements.forEach(element => {
+    element.addEventListener('change', () => {
+      // Соберите данные формы
+      const data = {
+        age: parseInt(document.getElementById('ageDisplay').textContent.split(' ')[0]),
+        height: parseFloat(document.getElementById('heightDisplay').textContent.split(' ')[0]),
+        weight: parseFloat(document.getElementById('weightDisplay').textContent.split(' ')[0]),
+        activityLevel: document.getElementById('activityLevel').value,
+        goal: document.getElementById('goal').value,
+        isLactoseIntolerant: document.getElementById('foodRestrictions').value === 'lactoseFree'
+      };
+
+      // Вычислите метаболизм и диету
+      const metabolism = calculateMetabolism(data);
+      const dietPlan = getDietPlan(metabolism, data.isLactoseIntolerant);
+
+      // Отобразите результаты
+      document.getElementById('metabolismDisplay').textContent = metabolism + ' ккал.';
+      displayDietPlan(dietPlan);
+    });
+  });
+  function displayDietPlan(dietPlan) {
+  // Найдите контейнер, в котором будет отображаться суточный рацион
+  const dietPlanContainer = document.getElementById('dietPlanContainer');
+
+  // Очистите контейнер
+  dietPlanContainer.innerHTML = '';
+
+  // Разбейте формулу диеты на отдельные компоненты
+  const dietComponents = dietPlan.match(/([А-Я][0-9]+)/g);
+
+  // Создайте кнопку для каждого компонента
+  dietComponents.forEach(component => {
+    const button = document.createElement('button');
+    button.className = 'btn-group-number relative bg-blue-200 px-4 py-2 rounded';
+    button.dataset.number = component.slice(1); // Изменено на component.slice(1)
+    // console.log(component.slice(1))
+    button.textContent = component.slice(0, 1); // Изменено на component.slice(0, 1)
+    dietPlanContainer.appendChild(button);
+  });
+  const goToScreen1Button = document.getElementById('goToScreen1');
+  goToScreen1Button.classList.remove('hidden');
+  goToScreen1Button.onclick = function() {
+    // Перенаправление на screen1.html с параметром формулы суточного рациона
+    // window.location.href = 'screen2.html?dietPlan=' + encodeURIComponent(dietPlan);
+    window.location.href = 'screen4.html' + encodeURIComponent(dietPlan);
+
+  };
+}
+
+</script>
+</body>
+</html>
